@@ -76,7 +76,7 @@ bool HelloWorld::init()
     asio::io_service io_service;
     tcp::socket sock(io_service);
     tcp::resolver resolver(io_service);
-    asio::connect(sock, resolver.resolve({ "127.0.0.1", "3000" }));
+    asio::connect(sock, resolver.resolve({ "192.168.25.57", "3000" }));
 
     //std::cout << "Enter message: ";
     char request[max_length];
