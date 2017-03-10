@@ -13,10 +13,12 @@ LOCAL_MODULE_FILENAME := libMyGame
 
 LOCAL_SRC_FILES := hellocpp/main.cpp \
                    ../../Classes/AppDelegate.cpp \
-                   ../../Classes/HelloWorldScene.cpp
+                   ../../Classes/HelloWorldScene.cpp \
+                   ../../Classes/network_manager.cpp
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../Classes \
-		    $(LOCAL_PATH)/../../Classes/network
+		    $(LOCAL_PATH)/../../Classes/network \
+		    $(LOCAL_PATH)/../../Classes/cereal_v1.2.2/include
 
 # _COCOS_HEADER_ANDROID_BEGIN
 # _COCOS_HEADER_ANDROID_END

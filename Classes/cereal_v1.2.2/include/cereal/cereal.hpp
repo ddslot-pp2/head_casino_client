@@ -38,11 +38,23 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <sstream>
 
 #include "cereal/macros.hpp"
 #include "cereal/details/traits.hpp"
 #include "cereal/details/helpers.hpp"
 #include "cereal/types/base_class.hpp"
+
+namespace std
+{
+    template < typename T > std::string to_string( const T& n )
+    {
+        std::ostringstream ss;
+        ss << n ;
+        return ss.str() ;
+    }
+}
+
 
 namespace cereal
 {

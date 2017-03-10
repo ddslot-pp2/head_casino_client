@@ -119,6 +119,8 @@ include_directories(
   ${COCOS2D_ROOT}/cocos/platform
   ${COCOS2D_ROOT}/cocos/audio/include/
   Classes
+  Classes/network
+  Classes/cereal_v1.2.2/include
 )
 if ( WIN32 )
   include_directories(
@@ -130,12 +132,14 @@ endif( WIN32 )
 set(GAME_SRC
   Classes/AppDelegate.cpp
   Classes/HelloWorldScene.cpp
+  Classes/network_manager.cpp
   ${PLATFORM_SPECIFIC_SRC}
 )
 
 set(GAME_HEADERS
   Classes/AppDelegate.h
   Classes/HelloWorldScene.h
+  Classes/network_manager.cpp
   ${PLATFORM_SPECIFIC_HEADERS}
 )
 
