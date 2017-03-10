@@ -73,29 +73,43 @@ bool HelloWorld::init()
     // add the sprite as a child to this layer
     this->addChild(sprite, 0);
 
-    asio::io_service io_service;
-    tcp::socket sock(io_service);
-    tcp::resolver resolver(io_service);
-    asio::connect(sock, resolver.resolve({ "127.0.0.1", "3000" }));
+    using namespace std::placeholders;
+    network_manager::instance().do_connect("127.0.0.1", "3000", std::bind(&HelloWorld::on_connected, this, _1));
 
-    //std::cout << "Enter message: ";
-    char request[max_length];
-    //std::cin.getline(request, max_length);
-    size_t request_length = std::strlen(request);
-    asio::write(sock, asio::buffer(request, request_length));
-
-    char reply[max_length];
-    size_t reply_length = asio::read(sock, asio::buffer(reply, request_length));
-
-    //std::cout << "Reply is: ";
-    //std::cout.write(reply, reply_length);
-    //std::cout << "\n";
     
+    CS_CONNECT write;
+    write.x = 20;
+    write.v.push_back(10);
+    write.m[0] = 20;
+    write.m[1] = 20;
+
+    std::stringstream os;
+    {
+        cereal::BinaryOutputArchive ar(os);
+        ar(write);
+    }
+
+    auto str = os.str();
+    auto size = str.size();
+    
+    CCLOG("size: %d\n", size);
 
     
     return true;
 }
 
+void HelloWorld::on_connected(bool r)
+{
+    bool result = true;
+    if (result)
+    {
+        CCLOG("successfully connected\n");
+    }
+    else
+    {
+        CCLOG("fail to connect\n");
+    }
+}
 
 void HelloWorld::menuCloseCallback(Ref* pSender)
 {

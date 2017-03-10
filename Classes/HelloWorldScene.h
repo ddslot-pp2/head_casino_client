@@ -2,14 +2,35 @@
 #define __HELLOWORLD_SCENE_H__
 
 #include "cocos2d.h"
+#include "network_manager.h"
 
-#define ASIO_STANDALONE
 
-#include "network/asio.hpp"
+#include "network/asio/io_service.hpp"
 
-using asio::ip::tcp;
+#include "cereal_v1.2.2/include/cereal/archives/binary.hpp"
+#include "cereal_v1.2.2/include/cereal/archives/portable_binary.hpp"
+#include "cereal_v1.2.2/include/cereal/types/map.hpp"
+#include "cereal_v1.2.2/include/cereal/types/vector.hpp"
+
+#include <sstream>
+#include <array>
+#include <vector>
+#include <map>
 
 enum { max_length = 1024 };
+
+struct CS_CONNECT
+{
+    int x;
+    std::vector<int> v;
+    std::map<int, int> m;
+
+    template<class Archive>
+    void serialize(Archive & archive)
+    {
+        archive(x, v, m); // serialize things by passing them to the archive
+    }
+};
 
 class HelloWorld : public cocos2d::Layer
 {
@@ -20,6 +41,8 @@ public:
     
     // a selector callback
     void menuCloseCallback(cocos2d::Ref* pSender);
+
+    void on_connected(bool r);
     
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
