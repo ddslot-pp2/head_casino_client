@@ -77,7 +77,8 @@ bool HelloWorld::init()
     network_manager::instance().do_connect("127.0.0.1", "3000", std::bind(&HelloWorld::on_connected, this, _1));
 
     
-    CS_CONNECT write;
+    /*
+    CS_LOG_IN write;
     write.x = 20;
     write.v.push_back(10);
     write.m[0] = 20;
@@ -93,6 +94,7 @@ bool HelloWorld::init()
     auto size = str.size();
     
     CCLOG("size: %d\n", size);
+    */
 
     
     return true;
@@ -108,6 +110,32 @@ void HelloWorld::on_connected(bool r)
     else
     {
         CCLOG("fail to connect\n");
+    }
+}
+
+void HelloWorld::process_packet()
+{
+    while (!network_manager::instance().q.empty())
+    {
+        auto packet_info = network_manager::instance().q.front();
+
+        auto opcode = reinterpret_cast<unsigned short>(packet_info.buffer->data());
+
+        std::stringstream is(std::string(packet_info.buffer->data() + sizeof(unsigned short), packet_info.cereal_size));
+
+        cereal::BinaryInputArchive ir(is); // Create an input archive
+        CS_LOG_IN read;
+        try
+        {
+            ir(read);
+        }
+        catch (...)
+        {
+            // log error
+        }
+    
+
+        network_manager::instance().q.pop();
     }
 }
 

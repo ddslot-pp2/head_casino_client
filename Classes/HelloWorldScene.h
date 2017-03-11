@@ -19,7 +19,7 @@
 
 enum { max_length = 1024 };
 
-struct CS_CONNECT
+struct CS_LOG_IN
 {
     int x;
     std::vector<int> v;
@@ -43,6 +43,8 @@ public:
     void menuCloseCallback(cocos2d::Ref* pSender);
 
     void on_connected(bool r);
+
+    void process_packet();
     
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);

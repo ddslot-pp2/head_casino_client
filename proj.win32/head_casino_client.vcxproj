@@ -153,6 +153,8 @@ xcopy "$(ProjectDir)..\Resources" "$(OutDir)" /D /E /I /F /Y
     <ClInclude Include="..\Classes\AppDelegate.h" />
     <ClInclude Include="..\Classes\HelloWorldScene.h" />
     <ClInclude Include="..\Classes\network_manager.h" />
+    <ClInclude Include="..\Classes\packet_processor\opcode.h" />
+    <ClInclude Include="..\Classes\packet_processor\packet.h" />
     <ClInclude Include="main.h" />
   </ItemGroup>
   <ItemGroup>

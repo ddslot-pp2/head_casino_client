@@ -10,6 +10,9 @@
     <Filter Include="src">
       <UniqueIdentifier>{bb6c862e-70e9-49d9-81b7-3829a6f50471}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\packet_processor">
+      <UniqueIdentifier>{fc5ba414-a112-4ce4-a5cb-504357218790}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -37,6 +40,12 @@
     </ClInclude>
     <ClInclude Include="..\Classes\network_manager.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\packet_processor\opcode.h">
+      <Filter>src\packet_processor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\packet_processor\packet.h">
+      <Filter>src\packet_processor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
