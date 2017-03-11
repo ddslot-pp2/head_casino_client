@@ -74,7 +74,7 @@ bool HelloWorld::init()
     this->addChild(sprite, 0);
 
     using namespace std::placeholders;
-    network_manager::instance().do_connect("127.0.0.1", "3000", std::bind(&HelloWorld::on_connected, this, _1));
+    network_manager::instance().do_connect("192.168.25.57", "3000", std::bind(&HelloWorld::on_connected, this, _1));
     
 
     std::thread t([] {
@@ -84,7 +84,6 @@ bool HelloWorld::init()
 
     t.detach();
 
-    CCLOG("fuck\n");
     /*
     CS_LOG_IN write;
     write.x = 20;
@@ -108,9 +107,8 @@ bool HelloWorld::init()
     return true;
 }
 
-void HelloWorld::on_connected(bool r)
+void HelloWorld::on_connected(bool result)
 {
-    bool result = true;
     if (result)
     {
         CCLOG("successfully connected\n");
@@ -149,10 +147,9 @@ void HelloWorld::process_packet()
             send.m[0] = 20;
             send.m[1] = 20;
 
-            for (auto i = 0; i < 10; ++i)
-            {
-                network_manager::instance().send_packet(packet::opcode::CS_LOG_IN, send);
-            }
+            network_manager::instance().send_packet(packet::opcode::CS_LOG_IN, send);
+            network_manager::instance().send_packet(packet::opcode::CS_LOG_IN, send);
+            network_manager::instance().send_packet(packet::opcode::CS_LOG_IN, send);            
         }
         catch (...)
         {

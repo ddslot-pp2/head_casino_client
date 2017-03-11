@@ -42,7 +42,7 @@ public:
     // a selector callback
     void menuCloseCallback(cocos2d::Ref* pSender);
 
-    void on_connected(bool r);
+    void on_connected(bool result);
 
 
     virtual void update(float ms) override;

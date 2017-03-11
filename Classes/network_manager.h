@@ -8,12 +8,15 @@
 #include <array>
 #include <thread>
 #include <utility>
+#include <mutex>
 
 #include "network/asio.hpp"
 #include "network/asio/io_service.hpp"
 
 #include "packet_processor/opcode.h"
 #include "packet_processor/packet.h"
+
+#include "cereal_v1.2.2/include/cereal/cereal.hpp"
 
 using asio::ip::tcp;
 
@@ -50,6 +53,7 @@ public:
     template <typename Opcode, typename Packet>
     void send_packet(Opcode opcode, Packet packet)
     {
+        send_lock_.lock();
         auto send_buf = std::make_shared<std::array<char, packet_buf_size>>();
 
         auto written = 0;
@@ -74,14 +78,17 @@ public:
             asio::async_write(socket_,
                 asio::buffer(send_buf->data(),
                     head_size),
-                [this,send_buf](std::error_code ec, std::size_t /*length*/)
+                [this, send_buf](std::error_code ec, std::size_t /*length*/)
             {
                 if (!ec)
                 {
-                    CCLOG("send complete\n");
+		    send_lock_.unlock();
+		  //CCLOG("successfully connected\n");
+                    //CCLOG("send complete\n");
                 }
                 else
                 {
+  		    send_lock_.unlock();
                     socket_.close();
                 }
             });
@@ -94,6 +101,7 @@ public:
     std::queue<packet_info> q;
 
 private:
+    std::mutex send_lock_;
 
     asio::io_service io_service_;
     tcp::socket socket_;
