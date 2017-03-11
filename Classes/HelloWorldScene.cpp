@@ -119,10 +119,12 @@ void HelloWorld::process_packet()
     {
         auto packet_info = network_manager::instance().q.front();
 
-        auto opcode = reinterpret_cast<unsigned short>(packet_info.buffer->data());
+	
+        auto opcode = reinterpret_cast<unsigned short*>(packet_info.buffer->data());
 
         std::stringstream is(std::string(packet_info.buffer->data() + sizeof(unsigned short), packet_info.cereal_size));
 
+	
         cereal::BinaryInputArchive ir(is); // Create an input archive
         CS_LOG_IN read;
         try
@@ -133,7 +135,7 @@ void HelloWorld::process_packet()
         {
             // log error
         }
-    
+	
 
         network_manager::instance().q.pop();
     }

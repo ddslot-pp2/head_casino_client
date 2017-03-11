@@ -1,5 +1,7 @@
 #include "network_manager.h"
 #include "ui/UIDeprecated.h"
+#include <memory>
+#include <type_traits>
 
 network_manager::network_manager() : socket_(io_service_)
 {
@@ -55,13 +57,11 @@ void network_manager::do_read_header()
 
 void network_manager::do_read_body()
 {
-
-    using buffer_type = std::remove_reference_t<decltype(*receive_buffer_)>;
-    receive_buffer_ = std::make_shared<buffer_type>();
+    receive_buffer_ = std::make_shared<std::array<char, packet_buf_size>>();
 
     asio::async_read(socket_,
         asio::buffer(receive_buffer_->data(), receive_size_ - sizeof(receive_size_)),
-        [this](std::error_code ec, std::size_t /*length*/)
+        [this](std::error_code ec, std::size_t)
     {
         if (!ec)
         {
@@ -80,5 +80,6 @@ void network_manager::do_read_body()
             socket_.close();
         }
     });
+  
 }
 
