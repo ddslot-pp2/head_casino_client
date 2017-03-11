@@ -44,6 +44,9 @@ public:
 
     void on_connected(bool r);
 
+
+    virtual void update(float ms) override;
+
     void process_packet();
     
     // implement the "static create()" method manually

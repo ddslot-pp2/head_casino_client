@@ -4,11 +4,16 @@
 #define ASIO_STANDALONE
 
 #include <functional>
+#include <queue>
+#include <array>
+#include <thread>
+#include <utility>
 
 #include "network/asio.hpp"
 #include "network/asio/io_service.hpp"
-#include <queue>
-#include <array>
+
+#include "packet_processor/opcode.h"
+#include "packet_processor/packet.h"
 
 using asio::ip::tcp;
 
@@ -40,6 +45,51 @@ public:
     void do_connect(std::string host, std::string port, std::function<void(bool)> on_connected);
     void do_read_header();
     void do_read_body();
+    void do_write();
+
+    template <typename Opcode, typename Packet>
+    void send_packet(Opcode opcode, Packet packet)
+    {
+        auto send_buf = std::make_shared<std::array<char, packet_buf_size>>();
+
+        auto written = 0;
+
+        std::stringstream os;
+        {
+            cereal::BinaryOutputArchive ar(os);
+            ar(packet);
+        }
+
+        auto byte_packet = os.str();
+        written = byte_packet.size();
+        if (written)
+        {
+            
+            auto head_size = written + sizeof(unsigned short) + sizeof(unsigned short);
+
+            std::memcpy(send_buf->data(), &head_size, sizeof(unsigned short));
+            std::memcpy(send_buf->data() + sizeof(unsigned short), &opcode, sizeof(unsigned short));
+            std::memcpy(send_buf->data() + sizeof(unsigned short) * 2, byte_packet.data(), written);
+
+            asio::async_write(socket_,
+                asio::buffer(send_buf->data(),
+                    head_size),
+                [this,send_buf](std::error_code ec, std::size_t /*length*/)
+            {
+                if (!ec)
+                {
+                    CCLOG("send complete\n");
+                }
+                else
+                {
+                    socket_.close();
+                }
+            });
+
+        }
+    }
+
+    void io_service_run();
 
     std::queue<packet_info> q;
 

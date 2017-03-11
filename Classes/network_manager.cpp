@@ -19,16 +19,16 @@ void network_manager::do_connect(std::string host, std::string port, std::functi
     auto endpoint_iterator = resolver.resolve({ host, port });
 
     asio::async_connect(socket_, endpoint_iterator,
-        [this, &on_connected](std::error_code ec, tcp::resolver::iterator)
+        [this, on_connected](std::error_code ec, tcp::resolver::iterator it)
     {
         if (ec)
         {
             on_connected(false);
-            //do_read_header();   
+            return;
         }
 
         on_connected(true);
-        //do_read_header();
+        do_read_header();
     });
 }
 
@@ -83,3 +83,7 @@ void network_manager::do_read_body()
   
 }
 
+void network_manager::io_service_run()
+{
+    io_service_.run();
+}

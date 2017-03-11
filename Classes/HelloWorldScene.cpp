@@ -75,8 +75,16 @@ bool HelloWorld::init()
 
     using namespace std::placeholders;
     network_manager::instance().do_connect("127.0.0.1", "3000", std::bind(&HelloWorld::on_connected, this, _1));
-
     
+
+    std::thread t([] {
+        network_manager::instance().io_service_run();
+    });
+
+
+    t.detach();
+
+    CCLOG("fuck\n");
     /*
     CS_LOG_IN write;
     write.x = 20;
@@ -95,7 +103,7 @@ bool HelloWorld::init()
     
     CCLOG("size: %d\n", size);
     */
-
+    this->scheduleUpdate();
     
     return true;
 }
@@ -113,29 +121,44 @@ void HelloWorld::on_connected(bool r)
     }
 }
 
+void HelloWorld::update(float ms)
+{
+    process_packet();
+}
+
 void HelloWorld::process_packet()
 {
     while (!network_manager::instance().q.empty())
     {
         auto packet_info = network_manager::instance().q.front();
-
 	
         auto opcode = reinterpret_cast<unsigned short*>(packet_info.buffer->data());
 
         std::stringstream is(std::string(packet_info.buffer->data() + sizeof(unsigned short), packet_info.cereal_size));
 
-	
         cereal::BinaryInputArchive ir(is); // Create an input archive
         CS_LOG_IN read;
         try
         {
             ir(read);
+            CCLOG("x: %d\n", read.x);
+
+            LOBBY::CS_LOG_IN send;
+            send.x = 20;
+            send.v.push_back(10);
+            send.m[0] = 20;
+            send.m[1] = 20;
+
+            for (auto i = 0; i < 10; ++i)
+            {
+                network_manager::instance().send_packet(packet::opcode::CS_LOG_IN, send);
+            }
         }
         catch (...)
         {
+            CCLOG("exception cated due to parsing packet!!\n");
             // log error
         }
-	
 
         network_manager::instance().q.pop();
     }

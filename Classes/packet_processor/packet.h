@@ -4,81 +4,81 @@
 #include <vector>
 #include <map>
 
-namespace packet
+
+
+namespace LOBBY
 {
-    namespace LOBBY
+    struct CS_LOG_IN //: public base_packet
     {
-        struct CS_LOG_IN //: public base_packet
+        int x;
+        std::vector<int> v;
+        std::map<int, int> m;
+
+        template<class Archive>
+        void serialize(Archive & archive)
         {
-            int x;
-            std::vector<int> v;
-            std::map<int, int> m;
+            archive(x, v, m); // serialize things by passing them to the archive
+        }
+    };
 
-            template<class Archive>
-            void serialize(Archive & archive)
-            {
-                archive(x, v, m); // serialize things by passing them to the archive
-            }
-        };
-
-        struct CS_CONNECT //: public base_packet
-        {
-            int x;
-            std::vector<int> v;
-            std::map<int, int> m;
-
-            template<class Archive>
-            void serialize(Archive & archive)
-            {
-                archive(x, v, m); // serialize things by passing them to the archive
-            }
-        };
-
-        struct SC_CONNECT //: public base_packet
-        {
-            int x;
-            std::vector<int> v;
-            std::map<int, int> m;
-
-            template<class Archive>
-            void serialize(Archive & archive)
-            {
-                archive(x, v, m); // serialize things by passing them to the archive
-            }
-        };
-    }
-
-    namespace GAME
+    struct CS_CONNECT //: public base_packet
     {
-        struct CS_MOVE_CHARACTER //: public base_packet
+        int x;
+        std::vector<int> v;
+        std::map<int, int> m;
+
+        template<class Archive>
+        void serialize(Archive & archive)
         {
-            int x;
-            std::vector<int> v;
-            std::map<int, int> m;
+            archive(x, v, m); // serialize things by passing them to the archive
+        }
+    };
 
-            template<class Archive>
-            void serialize(Archive & archive)
-            {
-                archive(x, v, m); // serialize things by passing them to the archive
-            }
-        };
-    }
-
-    namespace SKILL
+    struct SC_CONNECT //: public base_packet
     {
-        struct CS_CAST_SKILL //: public base_packet
-        {
-            int x;
-            std::vector<int> v;
-            std::map<int, int> m;
+        int x;
+        std::vector<int> v;
+        std::map<int, int> m;
 
-            template<class Archive>
-            void serialize(Archive & archive)
-            {
-                archive(x, v, m); // serialize things by passing them to the archive
-            }
-        };
-    }
+        template<class Archive>
+        void serialize(Archive & archive)
+        {
+            archive(x, v, m); // serialize things by passing them to the archive
+        }
+    };
 }
+
+namespace GAME
+{
+    struct CS_MOVE_CHARACTER //: public base_packet
+    {
+        int x;
+        std::vector<int> v;
+        std::map<int, int> m;
+
+        template<class Archive>
+        void serialize(Archive & archive)
+        {
+            archive(x, v, m); // serialize things by passing them to the archive
+        }
+    };
+}
+
+namespace SKILL
+{
+    struct CS_CAST_SKILL //: public base_packet
+    {
+        int x;
+        std::vector<int> v;
+        std::map<int, int> m;
+
+        template<class Archive>
+        void serialize(Archive & archive)
+        {
+            archive(x, v, m); // serialize things by passing them to the archive
+        }
+    };
+}
+
 
 #endif
