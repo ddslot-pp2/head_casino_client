@@ -41,10 +41,10 @@ void network_manager::do_connect(std::string host, std::string port, std::functi
     std::thread t([this] {
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        asio::error_code ec;
-        io_service_.run(ec);
+        //asio::error_code ec;
+        io_service_.run();
 
-        CCLOG("ec:%d\n", ec);
+        //CCLOG("ec:%d\n", ec);
         CCLOG("finish io_service thread\n");
     });
     t.detach();

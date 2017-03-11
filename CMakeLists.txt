@@ -133,13 +133,15 @@ set(GAME_SRC
   Classes/AppDelegate.cpp
   Classes/HelloWorldScene.cpp
   Classes/network_manager.cpp
+  Classes/lobby_scene.cpp
   ${PLATFORM_SPECIFIC_SRC}
 )
 
 set(GAME_HEADERS
   Classes/AppDelegate.h
   Classes/HelloWorldScene.h
-  Classes/network_manager.cpp
+  Classes/network_manager.h
+  Classes/lobby_scene.h
   ${PLATFORM_SPECIFIC_HEADERS}
 )
 

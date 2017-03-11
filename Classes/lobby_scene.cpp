@@ -165,7 +165,7 @@ void lobby_scene::process_packet()
 
         try
         {
-            if (opcode == opcode::SC_LOG_IN)
+            if (opcode == SC_LOG_IN)
             {
                 LOBBY::SC_LOG_IN read;
                 ir(read);
