@@ -92,18 +92,15 @@ public:
                 }
                 else
                 {
-                    socket_.close();
                     send_lock_.unlock();
-                    if (on_disconnected_)
-                    {
-                        on_disconnected_();
-                    }
+                    disconnected();
                 }
             });
 
         }
     }
 
+    void disconnected();
     void set_on_disconnected(std::function<void()> on_disconnected);
 
     void io_service_run();
@@ -115,6 +112,8 @@ private:
     std::mutex send_lock_;
 
     asio::io_service io_service_;
+
+    //std::shared_ptr<tcp::socket> socket_;
     tcp::socket socket_;
 
     packet_buffer_type receive_buffer_;

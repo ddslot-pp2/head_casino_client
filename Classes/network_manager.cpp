@@ -2,6 +2,7 @@
 #include "ui/UIDeprecated.h"
 #include <memory>
 #include <type_traits>
+#include <functional>
 
 network_manager::network_manager() : socket_(io_service_)
 {
@@ -15,8 +16,12 @@ network_manager::~network_manager()
 
 void network_manager::do_connect(std::string host, std::string port, std::function<void(bool)> on_connected)
 {
+    io_service_.reset();
     tcp::resolver resolver(io_service_);
     auto endpoint_iterator = resolver.resolve({ host, port });
+
+    //asio::error_code ec;
+    //socket_.set_option(asio::socket_base::reuse_address(true), ec);
 
     asio::async_connect(socket_, endpoint_iterator,
         [this, on_connected](std::error_code ec, tcp::resolver::iterator it)
@@ -27,9 +32,23 @@ void network_manager::do_connect(std::string host, std::string port, std::functi
             return;
         }
 
+        //socket2_ = std::move(socket_);
         on_connected(true);
         do_read_header();
     });
+    
+           
+    std::thread t([this] {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        asio::error_code ec;
+        io_service_.run(ec);
+
+        CCLOG("ec:%d\n", ec);
+        CCLOG("finish io_service thread\n");
+    });
+    t.detach();
+         
 }
 
 void network_manager::do_read_header()
@@ -42,11 +61,8 @@ void network_manager::do_read_header()
         {
             if (receive_size_ == 0 || receive_size_ > network_manager::max_packet_size)
             {
-                socket_.close();
-                if (on_disconnected_)
-                {
-                    on_disconnected_();
-                }
+             
+                disconnected();
                 return;
             }
 
@@ -54,12 +70,7 @@ void network_manager::do_read_header()
         }
         else
         {
-            socket_.close();
-            if (on_disconnected_)
-            {
-                on_disconnected_();
-            }
-            socket_.close();
+             disconnected();   
         }
     });
 }
@@ -86,11 +97,7 @@ void network_manager::do_read_body()
         }
         else
         {
-            socket_.close();
-            if (on_disconnected_)
-            {
-                on_disconnected_();
-            }
+            disconnected();
         }
     });
   
@@ -104,6 +111,16 @@ void network_manager::io_service_run()
 void network_manager::stop()
 {
     io_service_.stop();
+}
+
+void network_manager::disconnected()
+{
+    asio::error_code ec;
+    //socket_.shutdown(asio::ip::tcp::socket::shutdown_both, ec);
+    socket_.close(ec);
+    stop();
+
+    if(on_disconnected_) on_disconnected_();
 }
 
 void network_manager::set_on_disconnected(std::function<void()> on_disconnected)

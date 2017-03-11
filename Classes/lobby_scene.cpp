@@ -72,16 +72,37 @@ bool lobby_scene::init()
     // add the sprite as a child to this layer
     this->addChild(sprite, 0);
 
+    // 버튼 생성
+    game_start_button_ = Button::create("res/lobby/ui/start0.png", "res/lobby/ui/start1.png", "res/lobby/ui/start1.png");
+    game_start_button_->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+    game_start_button_->addTouchEventListener([&](Ref* sender, Widget::TouchEventType type) {
+        switch (type)
+        {
+        case ui::Widget::TouchEventType::BEGAN:
+            break;
+        case ui::Widget::TouchEventType::ENDED:
+
+            network_manager::instance().do_connect("192.168.25.57", "3000", std::bind(&lobby_scene::on_connected, this, _1));
+
+          
+            CCLOG("Button 1 clicked\n");
+            game_start_button_->setBright(false);
+            game_start_button_->setTouchEnabled(false);
+            break;
+
+        default:
+            break;
+        }
+    });
+    this->addChild(game_start_button_, 1);
+    game_start_button_->setBright(false);
+    game_start_button_->setTouchEnabled(false);
+
     // 네트워크 셋팅
-    using namespace std::placeholders;
     network_manager::instance().set_on_disconnected(std::bind(&lobby_scene::on_disconnected, this));
     network_manager::instance().do_connect("192.168.25.57", "3000", std::bind(&lobby_scene::on_connected, this, _1));
 
-    std::thread t([] {
-        network_manager::instance().io_service_run();
-    });
-
-    t.detach();
+    
 
     /*
     CS_LOG_IN write;
@@ -120,7 +141,8 @@ void lobby_scene::on_connected(bool result)
 
 void lobby_scene::on_disconnected()
 {
-    
+    game_start_button_->setBright(true);
+    game_start_button_->setTouchEnabled(true);
     CCLOG("disconnected\n");
 }
 
