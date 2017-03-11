@@ -1,5 +1,5 @@
 #include "AppDelegate.h"
-#include "HelloWorldScene.h"
+#include "lobby_scene.h"
 USING_NS_CC;
 
 static const int iphone6_width = 1280;
@@ -67,7 +67,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     register_all_packages();
 
     // create a scene. it's an autorelease object
-    auto scene = HelloWorld::createScene();
+    auto scene = lobby_scene::createScene();
     //auto scene = menu_scene::createScene();
 
     // run

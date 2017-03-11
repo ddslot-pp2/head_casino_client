@@ -17,8 +17,13 @@
 #include "packet_processor/packet.h"
 
 #include "cereal_v1.2.2/include/cereal/cereal.hpp"
+#include "cereal_v1.2.2/include/cereal/archives/binary.hpp"
+#include "cereal_v1.2.2/include/cereal/archives/portable_binary.hpp"
+#include "cereal_v1.2.2/include/cereal/types/map.hpp"
+#include "cereal_v1.2.2/include/cereal/types/vector.hpp"
 
 using asio::ip::tcp;
+using namespace packet;
 
 class network_manager
 {
@@ -82,21 +87,27 @@ public:
             {
                 if (!ec)
                 {
-		    send_lock_.unlock();
-		  //CCLOG("successfully connected\n");
-                    //CCLOG("send complete\n");
+		           send_lock_.unlock();
+		           
                 }
                 else
                 {
-  		    send_lock_.unlock();
                     socket_.close();
+                    send_lock_.unlock();
+                    if (on_disconnected_)
+                    {
+                        on_disconnected_();
+                    }
                 }
             });
 
         }
     }
 
+    void set_on_disconnected(std::function<void()> on_disconnected);
+
     void io_service_run();
+    void stop();
 
     std::queue<packet_info> q;
 
@@ -108,7 +119,9 @@ private:
 
     packet_buffer_type receive_buffer_;
 
-    packet_size_type receive_size_  = 0;
+    packet_size_type receive_size_ = 0;
+
+    std::function<void()> on_disconnected_;
 };
 
 #endif

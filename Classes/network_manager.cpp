@@ -43,6 +43,10 @@ void network_manager::do_read_header()
             if (receive_size_ == 0 || receive_size_ > network_manager::max_packet_size)
             {
                 socket_.close();
+                if (on_disconnected_)
+                {
+                    on_disconnected_();
+                }
                 return;
             }
 
@@ -50,6 +54,11 @@ void network_manager::do_read_header()
         }
         else
         {
+            socket_.close();
+            if (on_disconnected_)
+            {
+                on_disconnected_();
+            }
             socket_.close();
         }
     });
@@ -78,6 +87,10 @@ void network_manager::do_read_body()
         else
         {
             socket_.close();
+            if (on_disconnected_)
+            {
+                on_disconnected_();
+            }
         }
     });
   
@@ -87,3 +100,14 @@ void network_manager::io_service_run()
 {
     io_service_.run();
 }
+
+void network_manager::stop()
+{
+    io_service_.stop();
+}
+
+void network_manager::set_on_disconnected(std::function<void()> on_disconnected)
+{
+    on_disconnected_ = on_disconnected;
+}
+

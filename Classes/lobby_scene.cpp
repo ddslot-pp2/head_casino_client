@@ -1,15 +1,15 @@
-#include "HelloWorldScene.h"
+#include "lobby_scene.h"
 #include "SimpleAudioEngine.h"
 
 USING_NS_CC;
 
-Scene* HelloWorld::createScene()
+Scene* lobby_scene::createScene()
 {
     // 'scene' is an autorelease object
     auto scene = Scene::create();
-    
+
     // 'layer' is an autorelease object
-    auto layer = HelloWorld::create();
+    auto layer = lobby_scene::create();
 
     // add layer as a child to scene
     scene->addChild(layer);
@@ -18,16 +18,15 @@ Scene* HelloWorld::createScene()
     return scene;
 }
 
-// on "init" you need to initialize your instance
-bool HelloWorld::init()
+bool lobby_scene::init()
 {
     //////////////////////////////
     // 1. super init first
-    if ( !Layer::init() )
+    if (!Layer::init())
     {
         return false;
     }
-    
+
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
@@ -37,12 +36,12 @@ bool HelloWorld::init()
 
     // add a "close" icon to exit the progress. it's an autorelease object
     auto closeItem = MenuItemImage::create(
-                                           "CloseNormal.png",
-                                           "CloseSelected.png",
-                                           CC_CALLBACK_1(HelloWorld::menuCloseCallback, this));
-    
-    closeItem->setPosition(Vec2(origin.x + visibleSize.width - closeItem->getContentSize().width/2 ,
-                                origin.y + closeItem->getContentSize().height/2));
+        "CloseNormal.png",
+        "CloseSelected.png",
+        CC_CALLBACK_1(lobby_scene::menuCloseCallback, this));
+
+    closeItem->setPosition(Vec2(origin.x + visibleSize.width - closeItem->getContentSize().width / 2,
+        origin.y + closeItem->getContentSize().height / 2));
 
     // create menu, it's an autorelease object
     auto menu = Menu::create(closeItem, NULL);
@@ -54,33 +53,33 @@ bool HelloWorld::init()
 
     // add a label shows "Hello World"
     // create and initialize a label
-    
+
     auto label = Label::createWithTTF("Hello World", "fonts/Marker Felt.ttf", 24);
-    
+
     // position the label on the center of the screen
-    label->setPosition(Vec2(origin.x + visibleSize.width/2,
-                            origin.y + visibleSize.height - label->getContentSize().height));
+    label->setPosition(Vec2(origin.x + visibleSize.width / 2,
+        origin.y + visibleSize.height - label->getContentSize().height));
 
     // add the label as a child to this layer
     this->addChild(label, 1);
 
     // add "HelloWorld" splash screen"
-    auto sprite = Sprite::create("res/ui/ss2.jpg");
+    auto sprite = Sprite::create("res/lobby/ui/lobby_bg.png");
 
     // position the sprite on the center of the screen
-    sprite->setPosition(Vec2(visibleSize.width/2 + origin.x, visibleSize.height/2 + origin.y));
+    sprite->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
 
     // add the sprite as a child to this layer
     this->addChild(sprite, 0);
 
+    // 네트워크 셋팅
     using namespace std::placeholders;
-    network_manager::instance().do_connect("192.168.25.57", "3000", std::bind(&HelloWorld::on_connected, this, _1));
-    
+    network_manager::instance().set_on_disconnected(std::bind(&lobby_scene::on_disconnected, this));
+    network_manager::instance().do_connect("192.168.25.57", "3000", std::bind(&lobby_scene::on_connected, this, _1));
 
     std::thread t([] {
         network_manager::instance().io_service_run();
     });
-
 
     t.detach();
 
@@ -93,21 +92,21 @@ bool HelloWorld::init()
 
     std::stringstream os;
     {
-        cereal::BinaryOutputArchive ar(os);
-        ar(write);
+    cereal::BinaryOutputArchive ar(os);
+    ar(write);
     }
 
     auto str = os.str();
     auto size = str.size();
-    
+
     CCLOG("size: %d\n", size);
     */
     this->scheduleUpdate();
-    
+
     return true;
 }
 
-void HelloWorld::on_connected(bool result)
+void lobby_scene::on_connected(bool result)
 {
     if (result)
     {
@@ -119,57 +118,73 @@ void HelloWorld::on_connected(bool result)
     }
 }
 
-void HelloWorld::update(float ms)
+void lobby_scene::on_disconnected()
+{
+    
+    CCLOG("disconnected\n");
+}
+
+void lobby_scene::update(float ms)
 {
     process_packet();
 }
 
-void HelloWorld::process_packet()
+void lobby_scene::process_packet()
 {
     while (!network_manager::instance().q.empty())
     {
         auto packet_info = network_manager::instance().q.front();
-	
-        auto opcode = reinterpret_cast<unsigned short*>(packet_info.buffer->data());
+
+        auto opcode = *reinterpret_cast<unsigned short*>(packet_info.buffer->data());
 
         std::stringstream is(std::string(packet_info.buffer->data() + sizeof(unsigned short), packet_info.cereal_size));
 
         cereal::BinaryInputArchive ir(is); // Create an input archive
-        LOBBY::SC_LOG_IN read;
+
         try
         {
-            ir(read);
-            
-            LOBBY::CS_LOG_IN send;
-            send.username = "asdsa";
-            send.password = "asdsad";
-            
-            network_manager::instance().send_packet(packet::opcode::CS_LOG_IN, send);          
+            if (opcode == opcode::SC_LOG_IN)
+            {
+                LOBBY::SC_LOG_IN read;
+                ir(read);
+            }
+            else
+            {
+
+            }
         }
         catch (...)
         {
             CCLOG("exception cated due to parsing packet!!\n");
-            // log error
         }
 
         network_manager::instance().q.pop();
     }
 }
 
-void HelloWorld::menuCloseCallback(Ref* pSender)
+void lobby_scene::menuCloseCallback(Ref* pSender)
 {
     network_manager::instance().stop();
     //Close the cocos2d-x game scene and quit the application
     Director::getInstance()->end();
 
-    #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
     exit(0);
 #endif
-    
+
     /*To navigate back to native iOS screen(if present) without quitting the application  ,do not use Director::getInstance()->end() and exit(0) as given above,instead trigger a custom event created in RootViewController.mm as below*/
-    
+
     //EventCustom customEndEvent("game_scene_close_event");
     //_eventDispatcher->dispatchEvent(&customEndEvent);
-    
-    
+
+
+}
+
+void lobby_scene::process_LOBBY_CS_LOG_IN(const LOBBY::SC_LOG_IN& read)
+{
+    if (!read.result)
+    {
+        CCLOG("error code: %s\n", read.error_code.c_str());
+    }
+
 }

@@ -27,6 +27,9 @@
     <ClCompile Include="..\Classes\network_manager.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\Classes\lobby_scene.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -46,6 +49,9 @@
     </ClInclude>
     <ClInclude Include="..\Classes\packet_processor\packet.h">
       <Filter>src\packet_processor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Classes\lobby_scene.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
